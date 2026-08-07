@@ -1,7 +1,12 @@
 // Adaptado de: Saludo.jsx (proyecto Calculadora)
 // Mismo patrón de componente con prop "nombre", reutilizado como encabezado de bienvenida del panel.
 function Bienvenida({ nombre }) {
-    return <h2>Hola {nombre}, este es el panel de la Estación de Monitoreo</h2>
+    return (
+        <div className="bienvenida">
+            <h1>Estación de Monitoreo</h1>
+            <p>Hola, <strong>{nombre}</strong> 👋 — bienvenido a tu panel de sensores</p>
+        </div>
+    );
 }
 
 export default Bienvenida

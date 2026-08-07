@@ -9,12 +9,14 @@ const app = express();
 const PORT = 3000;
 
 const lecturaRouter = require("./src/routers/lectura.routes");
+const exportRouter = require("./src/routers/export.routes");
 
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
 app.use("/api/lecturas", lecturaRouter);
+app.use("/api/lecturas", exportRouter);
 
 app.listen(PORT, () => {
     console.log('El servidor esta corriendo en http://localhost:' + PORT);
