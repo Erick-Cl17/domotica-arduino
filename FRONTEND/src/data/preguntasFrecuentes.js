@@ -80,6 +80,14 @@ const preguntasFrecuentes = [
         palabras: ['reloj', 'hora', 'zona horaria'],
         respuesta: 'El reloj del encabezado muestra la hora actual, y puedes cambiar la zona horaria con el selector que está justo debajo de la hora.'
     },
+    {
+        palabras: ['flujo', 'arduino hasta react', 'como llega el dato', 'flujo de datos'],
+        respuesta: 'El flujo es: Arduino lee los sensores (DHT11, divisor de voltaje, ACS712) y envía un JSON al backend. El backend valida ese JSON con Joi, calcula la potencia, y lo guarda en MySQL con Knex/Objection. Luego React consulta esa información por la API REST y la muestra en el dashboard, actualizándose sola cada pocos segundos.'
+    },
+    {
+        palabras: ['valida', 'joi', 'validacion'],
+        respuesta: 'Joi valida cada dato que llega al backend antes de guardarlo: que la temperatura sea numérica, que la humedad esté entre 0 y 100, que el voltaje y el amperaje sean mayores o iguales a cero, y que no falte ningún campo obligatorio. Si algo no cumple, la API rechaza la petición con un mensaje de error, sin llegar a guardarse en la base de datos.'
+    },
 ];
 
 export default preguntasFrecuentes;

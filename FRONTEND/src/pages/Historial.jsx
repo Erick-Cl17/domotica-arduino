@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Boton from '../components/Boton';
 import ModalExportar from '../components/ModalExportar';
+import FiltroSensores, { SENSORES } from '../components/FiltroSensores';
 
 const API_URL = 'http://localhost:3000/api/lecturas';
 
@@ -16,6 +17,7 @@ function Historial() {
     const [fechaDesde, setFechaDesde] = useState('');
     const [fechaHasta, setFechaHasta] = useState('');
     const [cantidadMaxima, setCantidadMaxima] = useState('');
+    const [sensores, setSensores] = useState(SENSORES.map((s) => s.clave));
 
     const [modalExportar, setModalExportar] = useState(false);
 
@@ -80,7 +82,10 @@ function Historial() {
                     <label><span>Desde</span><input type="date" value={fechaDesde} onChange={(e) => setFechaDesde(e.target.value)} /></label>
                     <label><span>Hasta</span><input type="date" value={fechaHasta} onChange={(e) => setFechaHasta(e.target.value)} /></label>
                     <label><span>Cantidad máxima</span><input type="number" min="1" value={cantidadMaxima} onChange={(e) => setCantidadMaxima(e.target.value)} placeholder="Todos" /></label>
-                    <button type="button" className="btn-restablecer" onClick={() => { setFechaDesde(''); setFechaHasta(''); setCantidadMaxima(''); }}>Limpiar filtro</button>
+
+                    <FiltroSensores seleccionados={sensores} onCambiar={setSensores} />
+
+                    <button type="button" className="btn-restablecer" onClick={() => { setFechaDesde(''); setFechaHasta(''); setCantidadMaxima(''); setSensores(SENSORES.map((s) => s.clave)); }}>Limpiar filtro</button>
                     <button type="button" className="btn-exportar" onClick={() => setModalExportar(true)}>
                         📤 Exportar
                     </button>
@@ -91,17 +96,27 @@ function Historial() {
             <div className="historial">
                 {lecturasFiltradas.length === 0 ? (
                     <p className="historial-vacio">No hay lecturas en este periodo.</p>
+                ) : sensores.length === 0 ? (
+                    <p className="historial-vacio">Selecciona al menos un sensor en el filtro para ver los datos.</p>
                 ) : (
                     <table className="historial-tabla">
-                        <thead><tr><th>Fecha</th><th>Temperatura</th><th>Humedad</th><th>Voltaje</th><th>Amperaje</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                {sensores.includes('temperatura') && <th>Temperatura</th>}
+                                {sensores.includes('humedad') && <th>Humedad</th>}
+                                {sensores.includes('voltaje') && <th>Voltaje</th>}
+                                {sensores.includes('amperaje') && <th>Amperaje</th>}
+                            </tr>
+                        </thead>
                         <tbody>
                             {lecturasFiltradas.map((lectura) => (
                                 <tr key={lectura.id}>
                                     <td>{new Date(lectura.created_at).toLocaleString()}</td>
-                                    <td>{lectura.temperatura}</td>
-                                    <td>{lectura.humedad}</td>
-                                    <td>{lectura.voltaje}</td>
-                                    <td>{lectura.amperaje}</td>
+                                    {sensores.includes('temperatura') && <td>{lectura.temperatura}</td>}
+                                    {sensores.includes('humedad') && <td>{lectura.humedad}</td>}
+                                    {sensores.includes('voltaje') && <td>{lectura.voltaje}</td>}
+                                    {sensores.includes('amperaje') && <td>{lectura.amperaje}</td>}
                                 </tr>
                             ))}
                         </tbody>

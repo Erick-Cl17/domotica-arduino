@@ -1,12 +1,20 @@
-// Chatbot de preguntas frecuentes (sin API externa, respuestas
-// predefinidas). Busca palabras clave en lo que escribe el usuario y responde
-// con la coincidencia que tenga más palabras clave encontradas.
+// Chatbot de preguntas frecuentes (sin API externa, respuestas predefinidas).
+// Busca palabras clave en lo que escribe el usuario y responde con la coincidencia que tenga más palabras clave encontradas.
 import { useState, useRef, useEffect } from 'react';
 import preguntasFrecuentes from '../data/preguntasFrecuentes';
 import avatarBot from '../assets/chatbot-clima.png';
 
 const RESPUESTA_POR_DEFECTO =
     'No tengo una respuesta guardada para eso todavía. Prueba preguntando sobre: voltaje, amperaje, potencia, temperatura, humedad, el foco, el relé, el DHT11, el ACS712, o cómo exportar los datos.';
+
+// Preguntas rápidas:
+const PREGUNTAS_RAPIDAS = [
+    '¿De qué trata el proyecto?',
+    '¿Cuál es el flujo de datos desde Arduino hasta React?',
+    '¿Cómo se valida la información con Joi?',
+    '¿Cómo se calcula la potencia eléctrica?',
+    '¿Cómo se genera y exporta el archivo Excel?',
+];
 
 function buscarRespuesta(pregunta) {
     const textoNormalizado = pregunta.toLowerCase();
@@ -36,18 +44,20 @@ function ChatBot() {
         finalDeMensajes.current?.scrollIntoView({ behavior: 'smooth' });
     }, [mensajes]);
 
-    const enviarMensaje = (evento) => {
-        evento.preventDefault();
-        const pregunta = textoInput.trim();
-        if (!pregunta) return;
-
+    const responder = (pregunta) => {
         const respuesta = buscarRespuesta(pregunta);
-
         setMensajes((anteriores) => [
             ...anteriores,
             { autor: 'usuario', texto: pregunta },
             { autor: 'bot', texto: respuesta }
         ]);
+    };
+
+    const enviarMensaje = (evento) => {
+        evento.preventDefault();
+        const pregunta = textoInput.trim();
+        if (!pregunta) return;
+        responder(pregunta);
         setTextoInput('');
     };
 
@@ -60,6 +70,7 @@ function ChatBot() {
                         <span>Asistente</span>
                         <button className="chatbot-cerrar" onClick={() => setAbierto(false)}>✕</button>
                     </div>
+
                     <div className="chatbot-mensajes">
                         {mensajes.map((mensaje, indice) => (
                             <div key={indice} className={`chatbot-mensaje chatbot-${mensaje.autor}`}>
@@ -68,6 +79,20 @@ function ChatBot() {
                         ))}
                         <div ref={finalDeMensajes} />
                     </div>
+
+                    {mensajes.length <= 1 && (
+                        <div className="chatbot-rapidas">
+                            <span className="chatbot-rapidas-titulo">Preguntas frecuentes</span>
+                            <div className="chatbot-rapidas-lista">
+                                {PREGUNTAS_RAPIDAS.map((p) => (
+                                    <button key={p} type="button" className="chatbot-chip" onClick={() => responder(p)}>
+                                        {p}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     <form className="chatbot-formulario" onSubmit={enviarMensaje}>
                         <input
                             type="text"
