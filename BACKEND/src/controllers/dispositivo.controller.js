@@ -2,7 +2,7 @@
 // Mismo patrón try/catch usado en lectura.controller.js (findById + patch), pero aplicado al único registro del foco. Cubre los puntos 13.4, 13.5 y 16 de la guía.
 const Dispositivo = require("../models/Dispositivo");
 const { exito, error } = require("../utils/httpResponse");
-// const { enviarComandoArduino } = require("../serial/arduinoConnection");
+const { enviarComandoArduino } = require("../serial/arduinoConnection");
 // ^ Placeholder: aquí se conectaría con Arduino para enviar LIGHT_ON / LIGHT_OFF
 //   una vez que se implemente esa parte del hardware (ver src/serial/arduinoConnection.js).
 
@@ -36,14 +36,14 @@ const cambiarEstadoFoco = async (req, res) => {
             estado,
             updated_at: new Date().toISOString()
         });
-
-        // --- AQUÍ VA ARDUINO ---
-        // En este punto, una vez implementado el hardware, se enviaría el comando
-        // serial/HTTP correspondiente a Arduino:
-        //   await enviarComandoArduino(estado ? "LIGHT_ON" : "LIGHT_OFF");
-        // Por ahora el estado solo se registra en la base de datos.
+        
+        // Enviar comando al Arduino
+        await enviarComandoArduino(
+            estado ? "LIGHT_ON" : "LIGHT_OFF"
+        );
 
         const focoActualizado = await Dispositivo.query().findById(foco.id);
+        
         return exito(res, focoActualizado, `Foco ${estado ? "encendido" : "apagado"} correctamente`);
     } catch (err) {
         console.error(err);
