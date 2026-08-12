@@ -1,19 +1,63 @@
-// PLACEHOLDER.
-// AQUÍ VA EL CÓDIGO DE ARDUINO / LA CONEXIÓN SERIAL O HTTP CON LA PLACA.
-//
-// Cuando se implemente el hardware, este archivo deberá:
-//   1) Abrir el puerto serial (por ejemplo con la librería "serialport") o exponer
-//      un endpoint HTTP para que un ESP32/ESP8266 envíe sus datos directamente.
-//   2) Leer/parsear el JSON que llega de Arduino:
-//      { "temperatura": 24.5, "humedad": 65, "voltaje": 12.1, "amperaje": 1.8, "estadoFoco": true }
-//   3) Insertar esa lectura reutilizando el modelo Lectura (src/models/Lectura.js).
-//   4) Exportar una función para enviar comandos hacia Arduino, por ejemplo:
-//      enviarComandoArduino("LIGHT_ON") / enviarComandoArduino("LIGHT_OFF")
-//      Esa función sería la que llamaría dispositivo.controller.js al cambiar el foco.
-//
-// Por ahora este módulo no hace nada; se deja listo para no tener que reorganizar
-// la estructura de carpetas cuando se conecte la placa física.
+const { SerialPort } = require("serialport");
+const readline = require("readline");
+
+const PUERTO_ARDUINO = process.env.ARDUINO_PORT || "COM5";
+
+const arduino = new SerialPort({
+    path: PUERTO_ARDUINO,
+    baudRate: 9600,
+    autoOpen: true
+});
+
+arduino.on("open", () => {
+    console.log(`Arduino conectado en ${PUERTO_ARDUINO}`);
+});
+
+arduino.on("error", (err) => {
+    console.error("Error de comunicación con Arduino:", err.message);
+});
+
+const lecturaSerial = readline.createInterface({
+    input: arduino
+});
+
+lecturaSerial.on("line", (linea) => {
+    try {
+        console.log("Datos recibidos de Arduino:", linea);
+
+        const datos = JSON.parse(linea);
+
+        console.log("Temperatura:", datos.temperatura);
+        console.log("Humedad:", datos.humedad);
+        console.log("Voltaje:", datos.voltaje);
+        console.log("Amperaje:", datos.amperaje);
+        console.log("Estado del foco:", datos.estadoFoco);
+
+    } catch (error) {
+        console.error("No se pudo interpretar el mensaje de Arduino:", linea);
+    }
+});
+
+const enviarComandoArduino = async (comando) => {
+
+    return new Promise((resolve, reject) => {
+
+        if (!arduino.isOpen) {
+            return reject(
+                new Error("El puerto de Arduino no está conectado")
+            );
+        }
+
+        arduino.write(`${comando}\n`, (error) => {
+            if (error) {
+                return reject(error);
+            }
+            console.log(`Comando enviado a Arduino: ${comando}`);
+            resolve(true);
+        });
+    });
+};
 
 module.exports = {
-    // enviarComandoArduino: async (comando) => { /* pendiente */ }
+    enviarComandoArduino
 };
