@@ -1,5 +1,6 @@
 const { SerialPort } = require("serialport");
 const readline = require("readline");
+const Lectura = require("../models/Lectura");
 
 const PUERTO_ARDUINO = process.env.ARDUINO_PORT || "COM5";
 
@@ -21,9 +22,14 @@ const lecturaSerial = readline.createInterface({
     input: arduino
 });
 
-lecturaSerial.on("line", (linea) => {
+lecturaSerial.on("line", async (linea) => {
+
     try {
+
         console.log("Datos recibidos de Arduino:", linea);
+        if (!linea.trim().startsWith("{")) {
+            return;
+        }
 
         const datos = JSON.parse(linea);
 
@@ -32,9 +38,22 @@ lecturaSerial.on("line", (linea) => {
         console.log("Voltaje:", datos.voltaje);
         console.log("Amperaje:", datos.amperaje);
         console.log("Estado del foco:", datos.estadoFoco);
+        
+        await Lectura.query().insert({
+            temperatura: datos.temperatura,
+            humedad: datos.humedad,
+            voltaje: datos.voltaje,
+            amperaje: datos.amperaje
+        });
+
+        console.log("Lectura guardada correctamente en MySQL");
 
     } catch (error) {
-        console.error("No se pudo interpretar el mensaje de Arduino:", linea);
+
+        console.error(
+            "No se pudo procesar la información de Arduino:",
+            error.message
+        );
     }
 });
 
@@ -49,10 +68,13 @@ const enviarComandoArduino = async (comando) => {
         }
 
         arduino.write(`${comando}\n`, (error) => {
+
             if (error) {
                 return reject(error);
             }
+
             console.log(`Comando enviado a Arduino: ${comando}`);
+
             resolve(true);
         });
     });
