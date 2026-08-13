@@ -2,7 +2,7 @@ const { SerialPort } = require("serialport");
 const readline = require("readline");
 const Lectura = require("../models/Lectura");
 
-const PUERTO_ARDUINO = process.env.ARDUINO_PORT || "COM5";
+const PUERTO_ARDUINO = process.env.ARDUINO_PORT || "COM4";
 
 const arduino = new SerialPort({
     path: PUERTO_ARDUINO,
