@@ -4,6 +4,7 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 require("./src/config/db");
+require("./src/serial/arduinoConnection");
 
 const app = express();
 const PORT = 3000;
