@@ -11,21 +11,17 @@ DHT dht(DHT_PIN, DHT_TYPE);
 
 bool focoEncendido = false;
 const float ACS_SENSITIVITY = 0.185;
-const float VOLTAGE_RATIO = 2.0;
+const float VOLTAGE_RATIO = 3.0;
 
 
 void setup() {
 
   Serial.begin(9600);
-
   dht.begin();
-
   pinMode(RELAY_PIN, OUTPUT);
-  digitalWrite(RELAY_PIN, LOW);
-
+  digitalWrite(RELAY_PIN, HIGH);
   Serial.println("ARDUINO_DOMOTICA_LISTO");
 }
-
 
 void loop() {
 
@@ -43,7 +39,6 @@ void loop() {
 
   } else {
 
-    // Enviar datos en formato JSON
     Serial.print("{\"temperatura\":");
     Serial.print(temperatura, 1);
 
@@ -76,7 +71,7 @@ void recibirComando() {
 
     if (comando == "LIGHT_ON") {
 
-      digitalWrite(RELAY_PIN, HIGH);
+      digitalWrite(RELAY_PIN, LOW);
 
       focoEncendido = true;
 
@@ -85,7 +80,7 @@ void recibirComando() {
 
     else if (comando == "LIGHT_OFF") {
 
-      digitalWrite(RELAY_PIN, LOW);
+      digitalWrite(RELAY_PIN, HIGH);
 
       focoEncendido = false;
 
@@ -94,22 +89,21 @@ void recibirComando() {
   }
 }
 
+
 float leerCorriente() {
 
   int lectura = analogRead(ACS_PIN);
 
   float voltajeSensor = lectura * (5.0 / 1023.0);
+
   float corriente =
       (voltajeSensor - 2.5) / ACS_SENSITIVITY;
-
-  // Evitar pequeños valores negativos por ruido
   if (corriente < 0) {
     corriente = 0;
   }
 
   return corriente;
 }
-
 
 float leerVoltaje() {
 
