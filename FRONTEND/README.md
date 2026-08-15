@@ -19,7 +19,7 @@ Endpoints:
 - PUT    /api/lecturas/:id        -> actualizar completamente
 - DELETE /api/lecturas/:id        -> eliminar
 
-## Integración con API de clima (OpenWeatherMap)
+## Integración con API de clima (OpenWeatherMap) Pruebas con api de Temperatura
 1. Crea una cuenta gratuita en https://openweathermap.org/api y genera una API Key.
 2. En backend/.env agrega:
    ```
